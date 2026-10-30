@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ product.name }} - Chi tiết</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <a href="/" class="btn btn-outline-secondary mb-3"> Quay lại</a>
+
+    <div class="row">
+        <div class="col-md-5">
+            <img src="{{ url_for('static', filename='img/' + product.image) }}" class="img-fluid rounded border" alt="{{ product.name }}">
+        </div>
+
+        <div class="col-md-7">
+            <h2 class="fw-bold">{{ product.name }}</h2>
+           <h3 class="text-danger my-3">
+                 {{ "{:,.0f}".format(product.price).replace(',', '.') }} VNĐ
+            </h3>
+            <p>{{ product.description }}</p>
+            <button class="btn btn-success btn-lg"><i class="fa fa-shopping-cart"></i> Mua ngay</button>
+        </div>
+    </div>
+
+        <div class="row mt-5">
+            <div class="col-md-12">
+                <h4 class="border-bottom pb-2">Đánh giá sản phẩm</h4>
+                
+                <div class="card bg-light p-3 mb-4">
+        <h5>Viết cảm nhận của bạn (AI sẽ phân tích)</h5>
+
+        <form id="reviewForm">
+            <input type="hidden" id="productId" value="{{ product.id }}">
+
+            <input type="hidden" id="userId" value="{{ session.get('user_id', '') }}">
+
+            <textarea id="reviewText" class="form-control mb-2" rows="3" placeholder="Sản phẩm này thế nào?..." required></textarea>
+            <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+        </form>
+
+        <div id="aiResult" class="mt-2"></div>
+        </div>
+
+            <div class="reviews-list">
+                {% for review in reviews %}
+                <div class="d-flex border-bottom py-3">
+                    <div class="me-3">
+                        <img src="https://via.placeholder.com/50" class="rounded-circle">
+                    </div>
+                    <div>
+                        <strong>{{ review.user_name if review.user_name else 'Khách ẩn danh' }}</strong>
+                        <small class="text-muted ms-2">{{ review.created_at }}</small>
+                        <br>
+                        
+                        {% if review.sentiment in ['Tích cực', 'positive'] %}
+                            <span class="badge bg-success">Tích cực 😊 ({{ (review.confidence * 100)|round }}%)</span>
+                        {% else %}
+                            <span class="badge bg-danger">Tiêu cực 😡 ({{ (review.confidence * 100)|round }}%)</span>
+                        {% endif %}
+                        
+                        <p class="mt-1 mb-0">{{ review.review_text }}</p>
+                    </div>
+                </div>
+                {% else %}
+                    <p class="text-muted text-center py-4">Chưa có đánh giá nào.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("reviewForm").addEventListener("submit", function(event) {
+        event.preventDefault(); 
+
+        var text = document.getElementById("reviewText").value;
+        var p_id = document.getElementById("productId").value;
+        var u_id = document.getElementById("userId").value; 
+
+        if (!u_id) {
+            console.log("Khách chưa đăng nhập -> Sẽ hiện là Ẩn danh");
+        }
+
+        fetch("/predict", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                text: text,
+                product_id: p_id,
+                user_id: u_id ? u_id : null 
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            
+            var badgeColor = (data.sentiment === 'positive' || data.sentiment === 'Tích cực') ? 'success' : 'danger';
+            var resultDiv = document.getElementById("aiResult");
+            
+            resultDiv.innerHTML = `
+                <div class="alert alert-${badgeColor}">
+                    <strong>Kết quả AI:</strong> ${data.sentiment} 
+                    (Độ tin cậy: ${(data.confidence * 100).toFixed(0)}%) <br>
+                    <em>Cảm ơn <b>${data.user_name}</b> đã đánh giá!</em>
+                </div>
+            `;
+            
+          
+            setTimeout(() => { location.reload(); }, 2000);
+        })
+        .catch(err => console.error(err));
+    });
+</script>
+
+</body>
+</html>

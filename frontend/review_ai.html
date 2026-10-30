@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Review System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+    <div class="card">
+        <h1>🧠 Smart Review System</h1>
+        <p class="subtitle">
+            Hệ thống phân tích cảm xúc bình luận sản phẩm bằng AI
+        </p>
+
+        <textarea id="review" placeholder="Nhập bình luận của bạn..."></textarea>
+
+        <button onclick="analyze()">Phân tích cảm xúc</button>
+
+        <div id="result" class="hidden">
+            <h2 id="sentimentText"></h2>
+            <div class="progress">
+                <div id="progressBar"></div>
+            </div>
+            <p id="confidenceText"></p>
+        </div>
+    </div>
+</div>
+
+<script src="js/ai_review.js"></script>
+</body>
+</html>

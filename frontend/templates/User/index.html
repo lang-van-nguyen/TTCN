@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="utf-8">
+    <title>Trang Chủ - Electro Shop</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <link href="{{ url_for('static', filename='lib/animate/animate.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
+
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="container-fluid bg-primary mb-4">
+        <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 80px">
+            <nav class="navbar navbar-expand-lg navbar-dark py-0 w-100">
+                <a href="/" class="navbar-brand d-flex flex-column align-items-center">
+                    <h1 class="m-0 text-white display-5 fw-bold"><i class="fas fa-bolt me-2"></i>ELECTRO</h1>
+                </a>
+
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse justify-content-end" id="navbarCollapse">
+                    <div class="navbar-nav align-items-center">
+                        <a href="/" class="nav-item nav-link active">Trang chủ</a>
+                        <a href="#products" class="nav-item nav-link">Sản phẩm</a>
+                        <a href="/danh-gia-link" class="nav-item nav-link text-white fw-bold">
+                            <i class="fa-solid fa-wand-magic-sparkles text-warning me-1"></i> Phân tích Link Tiki
+                        </a>
+                        
+                        {% if session.get('user_id') %}
+                            <div class="nav-item dropdown ms-3">
+                                <a href="#" class="nav-link dropdown-toggle btn btn-outline-primary rounded-pill px-3" data-bs-toggle="dropdown">
+                                    <i class="fas fa-user-circle me-1"></i> Chào, {{ session.get('user_name') }}
+                                </a>
+                                <div class="dropdown-menu rounded-0 m-0 shadow-sm border-0">
+                                    {% if session.get('role') == 'admin' %}
+                                        <a href="/admin" class="dropdown-item fw-bold text-primary"><i class="fas fa-tachometer-alt me-2"></i>Quản trị (Admin)</a>
+                                        <div class="dropdown-divider"></div>
+                                    {% endif %}
+                                    
+                                    <a href="#" class="dropdown-item">Lịch sử đơn hàng</a>
+                                    <a href="/logout" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a>
+                                </div>
+                            </div>
+                        {% else %}
+                            <a href="/login" class="nav-item nav-link ms-3 fw-bold">
+                                <i class="fas fa-sign-in-alt me-1"></i> Đăng nhập
+                            </a>
+                            
+                            <a href="/register" class="btn btn-primary rounded-pill py-2 px-4 ms-2 text-white">
+                                Đăng ký
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- HERO / CALL-TO-ACTION SECTION: PHÂN TÍCH LINK TIKI BẰNG AI -->
+    <div class="container mb-5">
+        <div class="p-4 p-lg-5 rounded-4 text-white shadow-lg position-relative overflow-hidden" 
+             style="background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #0d6efd 100%);">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-7">
+                    <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill bg-light bg-opacity-10 border border-light border-opacity-25 text-warning mb-3 fw-semibold small">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span>TÍNH NĂNG AI MỚI • NAIVE BAYES</span>
+                    </div>
+                    
+                    <h1 class="display-6 fw-bold mb-3 text-white lh-sm">
+                        Phân Tích Chất Lượng Sản Phẩm Bằng AI Qua Link Tiki
+                    </h1>
+                    
+                    <p class="lead fs-6 text-light mb-4 opacity-90" style="line-height: 1.7;">
+                        Đắn đo không biết đánh giá trên sàn là thật hay ảo? Chỉ cần dán đường link sản phẩm từ Tiki, 
+                        hệ thống sẽ tự động cào dữ liệu bình luận thực tế và chạy thuật toán <strong>Naive Bayes</strong> để bóc tách cảm xúc, 
+                        đo lường điểm uy tín thực (<strong>Real Trust Score</strong>) tức thì!
+                    </p>
+                    
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="badge bg-dark bg-opacity-50 border border-light border-opacity-25 py-2 px-3 fw-normal text-white">
+                            <i class="fa-solid fa-spider text-warning me-1"></i> Cào Tiki tự động
+                        </span>
+                        <span class="badge bg-dark bg-opacity-50 border border-light border-opacity-25 py-2 px-3 fw-normal text-white">
+                            <i class="fa-solid fa-brain text-info me-1"></i> Thuật toán Naive Bayes
+                        </span>
+                        <span class="badge bg-dark bg-opacity-50 border border-light border-opacity-25 py-2 px-3 fw-normal text-white">
+                            <i class="fa-solid fa-shield-halved text-success me-1"></i> Real Trust Score
+                        </span>
+                    </div>
+
+                    <a href="/danh-gia-link" class="btn btn-warning btn-lg px-4 py-3 rounded-pill fw-bold text-dark shadow d-inline-flex align-items-center gap-2 text-decoration-none">
+                        <i class="fa-solid fa-bolt text-danger"></i>
+                        <span>Dán link phân tích ngay</span>
+                        <i class="fa-solid fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                
+                <div class="col-lg-5 d-none d-lg-block">
+                    <!-- Preview Card Minh Họa Trực Quan -->
+                    <div class="card border-0 shadow-lg rounded-4 text-dark p-3" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);">
+                        <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary p-2 rounded-circle"><i class="fa-solid fa-robot text-white"></i></span>
+                                <div>
+                                    <h6 class="mb-0 fw-bold">Trợ Lý AI Phân Tích</h6>
+                                    <small class="text-muted">Mô hình phân loại cảm xúc NLP</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1 small fw-bold">Tiki Crawler</span>
+                        </div>
+                        
+                        <div class="bg-light p-3 rounded-3 mb-3 border">
+                            <small class="text-muted d-block mb-1"><i class="fa-solid fa-link me-1"></i> Link Tiki mẫu:</small>
+                            <div class="text-truncate fw-semibold text-primary small">https://tiki.vn/cay-cam-ngot-cua-toi-p74021317.html</div>
+                        </div>
+
+                        <div class="row g-2 mb-3 text-center">
+                            <div class="col-6">
+                                <div class="p-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-25">
+                                    <div class="small text-success fw-bold">Real Trust Score</div>
+                                    <div class="h3 fw-bold text-success mb-0">92%</div>
+                                    <small class="text-muted">Độ tin cậy cao</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="p-3 rounded-3 bg-primary bg-opacity-10 border border-primary border-opacity-25">
+                                    <div class="small text-primary fw-bold">Bình Luận Đã Quét</div>
+                                    <div class="h3 fw-bold text-primary mb-0">20/20</div>
+                                    <small class="text-muted">Tự động bóc tách</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="progress mb-2" style="height: 10px;">
+                            <div class="progress-bar bg-success" style="width: 85%" title="Tích cực"></div>
+                            <div class="progress-bar bg-danger" style="width: 15%" title="Tiêu cực"></div>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted" style="font-size: 0.78rem;">
+                            <span><i class="fa-solid fa-circle text-success me-1"></i>Tích cực (85%)</span>
+                            <span><i class="fa-solid fa-circle text-danger me-1"></i>Tiêu cực (15%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+
+    <div class="container-fluid pt-5" id="products">
+        <div class="text-center mb-4">
+            <h2 class="section-title px-5"><span class="px-2">Sản phẩm </span></h2>
+        </div>
+        
+        <div class="row px-xl-5 pb-3">
+            {% for product in products %}
+            <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
+                <div class="card product-item border-0 mb-4 h-100 shadow-sm">
+                    <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
+                        <a href="{{ url_for('view_product', id=product.id) }}">
+                            <img class="img-fluid w-100" 
+                                 src="{{ url_for('static', filename='img/' + product.image) }}" 
+                                 alt="{{ product.name }}"
+                                 style="height: 250px; object-fit: contain; padding: 20px;">
+                        </a>
+                    </div>
+                    <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
+                        <h6 class="text-truncate mb-3 px-2">{{ product.name }}</h6>
+                        <div class="d-flex justify-content-center">
+                            <h6 class="text-primary fw-bold">{{ "{:,.0f}".format(product.price) }} VNĐ</h6>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between bg-light border">
+                        <a href="{{ url_for('view_product', id=product.id) }}" class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i> Xem chi tiết</a>
+                        <a href="{{ url_for('view_product', id=product.id) }}" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i> Thêm giỏ</a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 text-center">
+                <div class="alert alert-warning">Chưa có sản phẩm nào trong kho!</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="container-fluid bg-dark text-white-50 pt-5 mt-5">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="text-white mb-4">Liên hệ</h5>
+                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>123 Đường ABC, Hà Nội</p>
+                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@example.com</p>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="text-white mb-4">Menu</h5>
+                    <a class="btn btn-link text-white-50" href="#">Về chúng tôi</a>
+                    <a class="btn btn-link text-white-50" href="#">Liên hệ</a>
+                    <a class="btn btn-link text-white-50" href="#">Dịch vụ</a>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="text-white mb-4">Đăng ký nhận tin</h5>
+                    <p>Nhận thông báo về sản phẩm mới nhất.</p>
+                    <div class="position-relative mx-auto" style="max-width: 400px;">
+                        <input class="form-control bg-transparent w-100 py-3 ps-4 pe-5" type="text" placeholder="Email của bạn">
+                        <button type="button" class="btn btn-primary py-2 position-absolute top-0 end-0 mt-2 me-2">Gửi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid copyright bg-dark py-4 border-top border-secondary">
+            <div class="container text-center">
+                <p class="mb-0">&copy; <a class="text-primary" href="#">Smart Review AI</a>. All Rights Reserved.</p>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="btn btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='lib/wow/wow.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='lib/owlcarousel/owl.carousel.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+
+</html>

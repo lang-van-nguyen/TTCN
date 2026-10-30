@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phân Tích Đánh Giá Sản Phẩm TMĐT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            color: white;
+            padding: 40px 0;
+            border-radius: 0 0 20px 20px;
+        }
+        .trust-score-card {
+            background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .badge-positive {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .badge-negative {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<!-- Header Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-brain"></i> Đánh Giá Sản Phẩm Thông Minh</a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" href="/">Trang chủ</a>
+            <a class="nav-link active" href="/danh-gia-link">Phân Tích Link TMĐT</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<div class="hero-section text-center mb-4">
+    <div class="container">
+        <h2 class="fw-bold"><i class="fa-solid fa-link"></i> Phân Tích Chất Lượng Sản Phẩm Qua Link</h2>
+        <p class="lead">Dán liên kết sản phẩm (Tiki) để tự động thu thập bình luận và đánh giá bằng thuật toán Naive Bayes</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Input Box -->
+    <div class="card shadow-sm p-4 mb-4 border-0 rounded-4">
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label class="form-label fw-bold">Đường dẫn sản phẩm (URL)</label>
+                <input type="url" id="productUrl" class="form-control form-control-lg" placeholder="Ví dụ: https://tiki.vn/cay-cam-ngot-cua-toi-p74021317.html">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label fw-bold">Số bình luận</label>
+                <select id="maxReviews" class="form-select form-select-lg">
+                    <option value="10">10 bình luận</option>
+                    <option value="20" selected>20 bình luận</option>
+                    <option value="50">50 bình luận</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button id="btnAnalyze" class="btn btn-primary btn-lg w-100 fw-bold" onclick="startAnalysis()">
+                    <i class="fa-solid fa-bolt"></i> Phân Tích
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading State -->
+    <div id="loadingState" class="text-center my-5 d-none">
+        <div class="spinner-border text-primary my-3" style="width: 3.5rem; height: 3.5rem;" role="status"></div>
+        <h4 class="fw-bold">Đang thu thập dữ liệu & phân tích NLP...</h4>
+        <p class="text-muted">Hệ thống đang phân tích trên từng bình luận.</p>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultSection" class="d-none">
+        <div class="row g-4 mb-4">
+            <!-- Real Trust Score -->
+            <div class="col-md-4">
+                <div class="card trust-score-card p-4 text-center h-100 shadow-sm border-0">
+                    <h6 class="text-uppercase opacity-75 fw-bold">Điểm Uy Tín Thật (Real Trust Score)</h6>
+                    <h1 class="display-2 fw-bold my-2" id="trustScore">0%</h1>
+                    <p class="mb-0" id="trustMessage">Tỉ lệ bình luận tích cực thực tế</p>
+                </div>
+            </div>
+
+            <!-- Sentiment Breakdown -->
+            <div class="col-md-8">
+                <div class="card p-4 h-100 shadow-sm border-0">
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-pie"></i> Đánh Giá Sản Phẩm </h5>
+                    <div class="d-flex justify-content-between mb-2 fs-5">
+                        <span class="text-success fw-bold"><i class="fa-solid fa-thumbs-up"></i> Tích cực: <span id="posCount">0</span></span>
+                        <span class="text-danger fw-bold"><i class="fa-solid fa-thumbs-down"></i> Tiêu cực: <span id="negCount">0</span></span>
+                    </div>
+                    <div class="progress mb-3" style="height: 25px;">
+                        <div id="posBar" class="progress-bar bg-success" style="width: 50%"></div>
+                        <div id="negBar" class="progress-bar bg-danger" style="width: 50%"></div>
+                    </div>
+                    <small class="text-muted"><i class="fa-solid fa-shield-halved"></i> Phân tích độc lập được thực hiện bởi mô hình Naive Bayes.</small>
+                </div>
+        </div>
+
+        <!-- AI Summary Section (Gemini) -->
+        <div class="card shadow-sm border-0 p-4 mb-4 rounded-4" style="background: #ffffff;">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                <h5 class="fw-bold mb-0 text-primary">
+                    <i class="fa-solid fa-wand-magic-sparkles text-warning me-2"></i>Trợ Lý AI đánh giá Ưu & Nhược Điểm 
+                </h5>
+                <button class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold" id="btnSummarize" onclick="getAiSummary()">
+                    <i class="fa-solid fa-robot me-1"></i> Tóm Tắt Bằng AI
+                </button>
+            </div>
+            <div id="aiSummaryLoading" class="text-center py-3 d-none">
+                <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                <span class="text-muted fw-semibold">đang phân tích các bình luận...</span>
+            </div>
+            <div id="aiSummaryContent" class="text-secondary p-3 rounded-3 bg-light border" style="white-space: pre-line; line-height: 1.7;">
+                Nhấn nút <strong>"Tóm Tắt Bằng AI"</strong> để tôi tự động bóc tách các ưu điểm, nhược điểm và đưa ra lời khuyên mua sắm từ đánh giá thực tế.
+            </div>
+        </div>
+
+        <!-- Table Review Details -->
+        <div class="card shadow-sm border-0 p-4 mb-5">
+            <h5 class="fw-bold mb-3"><i class="fa-solid fa-list-check"></i> Danh Sách Bình Luận Đã Phân Tích</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Người dùng</th>
+                            <th>Đánh giá</th>
+                            <th>Nội dung bình luận</th>
+                            <th>Thời gian</th>
+                            <th>Trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviewTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+let currentReviews = [];
+
+function formatTimeAgo(dateStr) {
+    if (!dateStr || dateStr === 'N/A') return 'N/A';
+    
+    let formattedStr = (typeof dateStr === 'string') ? dateStr.replace(' ', 'T') : dateStr;
+    let date = new Date(formattedStr);
+
+    // Chuyển Unix Timestamp dạng số (VD: 1765988196) thành miligiây
+    if (isNaN(date.getTime()) && !isNaN(Number(dateStr))) {
+        let ts = Number(dateStr);
+        date = new Date(ts < 10000000000 ? ts * 1000 : ts);
+    }
+
+    if (isNaN(date.getTime())) return dateStr;
+
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 0 || diffInSeconds < 60) return 'Vừa xong';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} phút trước`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+}
+
+async function startAnalysis() {
+    const url = document.getElementById('productUrl').value.trim();
+    const maxReviews = document.getElementById('maxReviews').value;
+
+    if (!url) {
+        alert("Vui lòng nhập đường dẫn sản phẩm Tiki!");
+        return;
+    }
+
+    document.getElementById('resultSection').classList.add('d-none');
+    document.getElementById('loadingState').classList.remove('d-none');
+    document.getElementById('btnAnalyze').disabled = true;
+
+    try {
+        const response = await fetch('/api/analyze-link', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: url, max_reviews: maxReviews })
+        });
+
+        const resData = await response.json();
+
+        if (!resData.success) {
+            alert(resData.message || "Đã xảy ra lỗi!");
+            return;
+        }
+
+        const data = resData.data;
+        currentReviews = data.reviews || [];
+
+        // Render điểm uy tín
+        document.getElementById('trustScore').innerText = data.trust_score + '%';
+        
+        // Progress Bar
+        const total = data.total_reviews;
+        const posPercent = total > 0 ? (data.positive_count / total) * 100 : 0;
+        const negPercent = total > 0 ? (data.negative_count / total) * 100 : 0;
+
+        document.getElementById('posCount').innerText = `${data.positive_count} (${posPercent.toFixed(1)}%)`;
+        document.getElementById('negCount').innerText = `${data.negative_count} (${negPercent.toFixed(1)}%)`;
+        document.getElementById('posBar').style.width = posPercent + '%';
+        document.getElementById('negBar').style.width = negPercent + '%';
+
+        // Reset khung AI summary
+        const summaryContent = document.getElementById('aiSummaryContent');
+        if (summaryContent) {
+            summaryContent.innerHTML = 'Nhấn nút <strong>"Tóm Tắt Bằng AI"</strong> để Gemini tự động bóc tách các ưu điểm, nhược điểm và đưa ra lời khuyên mua sắm từ đánh giá thực tế.';
+        }
+
+        // Table
+        const tbody = document.getElementById('reviewTableBody');
+        tbody.innerHTML = '';
+
+        data.reviews.forEach(item => {
+            const isPos = (item.sentiment === 'positive' || item.sentiment === 'Tích cực');
+            const badgeClass = isPos ? 'badge-positive' : 'badge-negative';
+            const badgeText = isPos ? 'Tích cực' : 'Tiêu cực';
+            const icon = isPos ? 'fa-thumbs-up text-success' : 'fa-thumbs-down text-danger';
+            const stars = '⭐'.repeat(item.rating || 5);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="fw-bold">${item.author || 'Ẩn danh'}</td>
+                <td>${stars}</td>
+                <td style="max-width: 420px;">${item.comment}</td>
+                <td class="text-muted small" title="${item.created_at || ''}">
+                    <i class="fa-regular fa-clock me-1"></i>${formatTimeAgo(item.created_at)}
+                </td>
+                <td>
+                    <span class="badge ${badgeClass} p-2">
+                        <i class="fa-solid ${icon}"></i> ${badgeText} (${item.confidence}%)
+                    </span>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        document.getElementById('resultSection').classList.remove('d-none');
+
+    } catch (err) {
+        alert("Lỗi kết nối máy chủ: " + err.message);
+    } finally {
+        document.getElementById('loadingState').classList.add('d-none');
+        document.getElementById('btnAnalyze').disabled = false;
+    }
+}
+
+async function getAiSummary() {
+    if (!currentReviews || currentReviews.length === 0) {
+        alert("Không có bình luận nào để tóm tắt! Vui lòng phân tích link Tiki trước.");
+        return;
+    }
+
+    const btn = document.getElementById('btnSummarize');
+    const loading = document.getElementById('aiSummaryLoading');
+    const content = document.getElementById('aiSummaryContent');
+
+    btn.disabled = true;
+    loading.classList.remove('d-none');
+    content.classList.add('d-none');
+
+    try {
+        const response = await fetch('/api/ai-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reviews: currentReviews })
+        });
+
+        const resData = await response.json();
+        if (!resData.success) {
+            alert(resData.message || "Không thể lấy tóm tắt từ Gemini AI!");
+            return;
+        }
+
+        // Định dạng hiển thị xuống dòng và in đậm
+        let formattedText = resData.summary
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+        content.innerHTML = formattedText;
+    } catch (err) {
+        alert("Lỗi kết nối API Gemini: " + err.message);
+    } finally {
+        btn.disabled = false;
+        loading.classList.add('d-none');
+        content.classList.remove('d-none');
+    }
+}
+
+</script>
+</body>
+</html>
